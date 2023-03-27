@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from src.constants import MensaNames, MensaURL
-from src.scraping import get_eth_menu, get_uzh_menu
+from src.scraping import get_menus
 from src.utils import print_menu
 
 

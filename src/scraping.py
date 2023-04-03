@@ -29,7 +29,7 @@ def get_uzh_menu(mensa: MensaNames):
     elems = section.find_all("h3")
     elems = [name.get_text() for name in elems]
     elems = [name.split(" | ") for name in elems]
-    elems = [(name[0].upper(), name[1].split(" / ")[0]) for name in elems]
+    elems = [(name[0].upper(), name[1].split(" / ")[0]) for name in elems if len(name) > 1]
 
     names = [cleanup_string(elem[0]) for elem in elems]
     prices = [float(cleanup_string(elem[1][4:])) for elem in elems]

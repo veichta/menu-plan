@@ -19,11 +19,12 @@ def get_uzh_menu(mensa: MensaNames):
     """
     logging.info(f"Getting menu for {mensa.value}...")
     url = MensaURL().get_url(mensa)
+    logging.info(f"URL: {url}")
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, "html.parser")
 
-    section = soup.find("div", {"class": "newslist-description"})
+    section = soup.find("div", {"class": "NewsListItem--content"})
 
     # extract names
     elems = section.find_all("h3")
@@ -40,6 +41,10 @@ def get_uzh_menu(mensa: MensaNames):
     dishes = [
         cleanup_string(dish) for dish in dishes if not dish.startswith("Allergikerinformationen")
     ]
+    dishes = dishes[1:]
+
+    for name, price, dish in zip(names, prices, dishes):
+        logging.info(f"{name} - {price} - {dish}")
 
     return [(mensa.value, name, price, dish) for name, price, dish in zip(names, prices, dishes)]
 
@@ -58,6 +63,7 @@ def get_eth_menu(mensa: MensaNames):
     """
     logging.info(f"Getting menu for {mensa.value}...")
     url = MensaURL().get_url(mensa)
+    logging.info(f"URL: {url}")
 
     driver = setup_driver()
     driver.get(url)

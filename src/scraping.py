@@ -43,6 +43,15 @@ def get_uzh_menu(mensa: MensaNames):
     ]
     dishes = dishes[1:]
 
+    if len(names) != len(prices) or len(names) != len(dishes):
+        raise ValueError("Length of names, prices and dishes must be equal")
+
+    if not names:
+        logging.info("No dishes found")
+        names = ["No dishes available"]
+        prices = [0.0]
+        dishes = [""]
+
     for name, price, dish in zip(names, prices, dishes):
         logging.info(f"{name} - {price} - {dish}")
 

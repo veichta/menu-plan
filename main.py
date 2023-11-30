@@ -42,7 +42,13 @@ def print_welcome_message():
         messages = json.load(f)
 
     greeting_msg = np.random.choice(messages["welcome-messages"])
-    print(f"{greeting_msg} Today is {MensaURL().weekday} and here is today's menu:\n")
+    # print(f"{greeting_msg} Today is {MensaURL().weekday} and here is today's menu:\n")
+    if MensaURL().weekday == "dienstag":
+        print(f"Today is vinstag (so don't foget your stamp cards) and here is today's menu:\n")
+    elif MensaURL().weekday == "mittwoch":
+        print(f"Today is mojitwoch and here is today's menu:\n")
+    else:
+        print(f"Today is {MensaURL().weekday} and here is today's menu:\n")
 
 
 if __name__ == "__main__":

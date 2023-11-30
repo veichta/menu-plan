@@ -56,7 +56,7 @@ class MensaURL:
         """
         return (
             "https://ethz.ch/de/campus/erleben/gastronomie-und-einkaufen/gastronomie/menueplaene"
-            + f"/offerDay.html?language=de&id=12&date={self.date}"
+            + f"/offerDay.html?language=de&id=9&date={self.date}"
         )
 
     def poly_abend(self):
@@ -67,7 +67,7 @@ class MensaURL:
         """
         return (
             "https://ethz.ch/de/campus/erleben/gastronomie-und-einkaufen/gastronomie/menueplaene"
-            + f"/offerDay.html?language=de&id=12&date={self.date}"
+            + f"/offerDay.html?language=de&id=9&date={self.date}"
         )
 
     def wok(self):
@@ -78,7 +78,7 @@ class MensaURL:
         """
         return (
             "https://ethz.ch/de/campus/erleben/gastronomie-und-einkaufen/gastronomie/menueplaene"
-            + f"/offerDay.html?language=de&id=4&date={self.date}"
+            + f"/offerDay.html?language=de&id=3&date={self.date}"
         )
 
     def get_url(self, mensa: MensaNames):

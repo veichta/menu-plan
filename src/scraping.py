@@ -3,6 +3,10 @@ import logging
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from src.constants import MensaNames, MensaURL
 from src.utils import cleanup_string, setup_driver
@@ -43,8 +47,10 @@ def get_uzh_menu(mensa: MensaNames):
     ]
     dishes = dishes[1:]
 
-    if len(names) != len(prices) or len(names) != len(dishes):
+    if len(names) != len(prices) or len(names) > len(dishes):
         raise ValueError("Length of names, prices and dishes must be equal")
+
+    dishes = dishes[: len(names)]
 
     if not names:
         logging.info("No dishes found")
@@ -76,40 +82,72 @@ def get_eth_menu(mensa: MensaNames):
 
     driver = setup_driver()
     driver.get(url)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
 
-    main_section = "contentMain"
-    main_section = soup.find("section", {"id": main_section})
+    max_wait_time = 10
+    # wait until #gastro-app has a section element
+    try:
+        # Wait for the presence of a section element inside #gastro-app
+        section_inside_gastro_app_present = EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "#gastro-app section")
+        )
+        WebDriverWait(driver, max_wait_time).until(section_inside_gastro_app_present)
+    except TimeoutException:
+        logging.info("Timed out waiting for page to load")
 
-    tables = main_section.findAll("tbody")
+    button_locator = "#gastro-app > div > section > div:nth-child(2) > div.cp-heading > div > button:nth-child(1)"
+    button_to_click = WebDriverWait(driver, max_wait_time).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, button_locator))
+    )
+    button_to_click.click()
+
+    source = driver.page_source
+
+    soup = BeautifulSoup(source, "html.parser")
+
+    main_section = "#gastro-app"
+    main_section = soup.select(main_section)[0]
+    main_section = main_section.select("section")[0]
+
+    tables = list(main_section.children)
+    if not len(tables):
+        logging.info("No dishes found")
+        return [(mensa.value, "No dishes available", 0.0, "")]
+
     if mensa in [MensaNames.poly, MensaNames.wok]:
         table = tables[1]
     elif mensa == MensaNames.poly_abend:
-        table = tables[3]
+        table = tables[2]
     else:
         raise ValueError("Mensa must be 'poly' or 'wok' or 'poly_abend'")
 
-    rows = table.findAll("tr")
+    menus = list(
+        table.select("div.cp-week.cp-week--wrap > section.cp-week__weekday > div.cp-week__days")
+    )
+    menus = list(menus[0].children)
     names = []
     prices = []
     dishes = []
-    for row in rows:
-        cols = row.findAll("td")
-
-        name = cols[0].get_text()
+    for menu in menus:
+        ps = menu.findAll("p")
+        logging.info(f"Found ps: {[ps.text for ps in ps]}")
+        name = ps[0].text
         name = cleanup_string(name)
-        dish = str(cols[1]).split("<div")[0]
-        dish = dish.replace("<td>", "").replace("<br/>", " ")
-        dish = BeautifulSoup(dish, "html.parser").get_text()
+
+        dish = f"{menu.find('h3').text}| {ps[1].text}"
         dish = cleanup_string(dish)
-        price = cols[2].get_text()
+
+        while ps[-1].text.startswith("+"):
+            ps = ps[:-1]
+
+        price = ps[-1].text.split("/")[0]
         price = float(cleanup_string(price))
 
         names.append(name)
         prices.append(price)
         dishes.append(dish)
 
-    driver.quit()
+    for name, price, dish in zip(names, prices, dishes):
+        logging.info(f"{name} - {price} - {dish}")
 
     return [(mensa.value, name, price, dish) for name, price, dish in zip(names, prices, dishes)]
 

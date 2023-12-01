@@ -1,18 +1,6 @@
 import re
 
 import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-
-
-def setup_driver():
-    chrome_service = ChromeService("/opt/homebrew/bin/chromedriver")
-    chrome_service.start()
-
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-
-    return webdriver.Chrome(options=options)
 
 
 def cleanup_string(string):

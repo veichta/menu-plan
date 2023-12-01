@@ -1,15 +1,13 @@
+import datetime
+import json
 import logging
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from src.constants import MensaNames, MensaURL
-from src.utils import cleanup_string, setup_driver
+from src.utils import cleanup_string
 
 
 def get_uzh_menu(mensa: MensaNames):
@@ -77,74 +75,54 @@ def get_eth_menu(mensa: MensaNames):
         list: List of dishes
     """
     logging.info(f"Getting menu for {mensa.value}...")
+
+    today = datetime.datetime.now()
+    day_int = today.weekday()
+    first_day = today - datetime.timedelta(days=today.weekday())
+    last_day = first_day + datetime.timedelta(days=6)
+
+    # Setup URL
     url = MensaURL().get_url(mensa)
+    valif_after = first_day.strftime("%Y-%m-%d")
+    valid_before = last_day.strftime("%Y-%m-%d")
+    url = url.format(valif_after=valif_after, valid_before=valid_before)
     logging.info(f"URL: {url}")
 
-    driver = setup_driver()
-    driver.get(url)
+    # Get response
+    response = requests.get(url)
+    response = json.loads(response.text.strip())
 
-    max_wait_time = 10
-    # wait until #gastro-app has a section element
-    try:
-        # Wait for the presence of a section element inside #gastro-app
-        section_inside_gastro_app_present = EC.presence_of_element_located(
-            (By.CSS_SELECTOR, "#gastro-app section")
-        )
-        WebDriverWait(driver, max_wait_time).until(section_inside_gastro_app_present)
-    except TimeoutException:
-        logging.info("Timed out waiting for page to load")
+    # Find today's menu
+    all_menus = response["weekly-rota-array"][0]["day-of-week-array"]
+    menus = next(m for m in all_menus if m["day-of-week-code"] == day_int + 1)
+    menus = menus["opening-hour-array"][0]["meal-time-array"]
 
-    button_locator = "#gastro-app > div > section > div:nth-child(2) > div.cp-heading > div > button:nth-child(1)"
-    button_to_click = WebDriverWait(driver, max_wait_time).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, button_locator))
-    )
-    button_to_click.click()
-
-    source = driver.page_source
-
-    soup = BeautifulSoup(source, "html.parser")
-
-    main_section = "#gastro-app"
-    main_section = soup.select(main_section)[0]
-    main_section = main_section.select("section")[0]
-
-    tables = list(main_section.children)
-    if not len(tables):
-        logging.info("No dishes found")
-        return [(mensa.value, "No dishes available", 0.0, "")]
-
-    if mensa in [MensaNames.poly, MensaNames.wok]:
-        table = tables[1]
-    elif mensa == MensaNames.poly_abend:
-        table = tables[2]
+    if mensa == MensaNames.poly_abend:
+        menus = next(me for me in menus if me["name"] == "Abendessen")
     else:
-        raise ValueError("Mensa must be 'poly' or 'wok' or 'poly_abend'")
+        menus = next(me for me in menus if me["name"] == "Mittagessen")
 
-    menus = list(
-        table.select("div.cp-week.cp-week--wrap > section.cp-week__weekday > div.cp-week__days")
-    )
-    menus = list(menus[0].children)
     names = []
     prices = []
     dishes = []
-    for menu in menus:
-        ps = menu.findAll("p")
-        logging.info(f"Found ps: {[ps.text for ps in ps]}")
-        name = ps[0].text
-        name = cleanup_string(name)
-
-        dish = f"{menu.find('h3').text}| {ps[1].text}"
-        dish = cleanup_string(dish)
-
-        while ps[-1].text.startswith("+"):
-            ps = ps[:-1]
-
-        price = ps[-1].text.split("/")[0]
-        price = float(cleanup_string(price))
+    for menu in menus["line-array"]:
+        name = menu["name"]
+        if meal := menu.get("meal"):
+            meal_name = meal["name"]
+            desc = meal["description"]
+            price = next(
+                p["price"]
+                for p in meal["meal-price-array"]
+                if p["customer-group-desc"] == "Studierende"
+            )
+        else:
+            meal_name = "Today's special is a surprise."
+            desc = ""
+            price = 0.0
 
         names.append(name)
         prices.append(price)
-        dishes.append(dish)
+        dishes.append(f"{meal_name} | {desc}" if desc else meal_name)
 
     for name, price, dish in zip(names, prices, dishes):
         logging.info(f"{name} - {price} - {dish}")

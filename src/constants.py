@@ -55,9 +55,17 @@ class MensaURL:
             str: URL
         """
         return (
-            "https://ethz.ch/de/campus/erleben/gastronomie-und-einkaufen/gastronomie/menueplaene"
-            + f"/offerDay.html?language=de&id=9&date={self.date}"
+            "https://idapps.ethz.ch/cookpit-pub-services/v1/weeklyrotas/?client-id=ethz-wcms"
+            + "&lang=de&rs-first=0"
+            + "&rs-size=50"
+            + "&valid-after={valif_after}"
+            + "&valid-before={valid_before}"
+            + "&facility=9"
         )
+        # return (
+        #     "https://ethz.ch/de/campus/erleben/gastronomie-und-einkaufen/gastronomie/menueplaene"
+        #     + f"/offerDay.html?language=de&id=9&date={self.date}"
+        # )
 
     def poly_abend(self):
         """Get URL for Poly Mensa Abend
@@ -66,8 +74,12 @@ class MensaURL:
             str: URL
         """
         return (
-            "https://ethz.ch/de/campus/erleben/gastronomie-und-einkaufen/gastronomie/menueplaene"
-            + f"/offerDay.html?language=de&id=9&date={self.date}"
+            "https://idapps.ethz.ch/cookpit-pub-services/v1/weeklyrotas/?client-id=ethz-wcms"
+            + "&lang=de&rs-first=0"
+            + "&rs-size=50"
+            + "&valid-after={valif_after}"
+            + "&valid-before={valid_before}"
+            + "&facility=9"
         )
 
     def wok(self):
@@ -77,8 +89,12 @@ class MensaURL:
             str: URL
         """
         return (
-            "https://ethz.ch/de/campus/erleben/gastronomie-und-einkaufen/gastronomie/menueplaene"
-            + f"/offerDay.html?language=de&id=3&date={self.date}"
+            "https://idapps.ethz.ch/cookpit-pub-services/v1/weeklyrotas/?client-id=ethz-wcms"
+            + "&lang=de&rs-first=0"
+            + "&rs-size=50"
+            + "&valid-after={valif_after}"
+            + "&valid-before={valid_before}"
+            + "&facility=3"
         )
 
     def get_url(self, mensa: MensaNames):

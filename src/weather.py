@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime, date
 import json
-from typing import Literal
 
 
 def get_weather(post_code: int, hour: int):

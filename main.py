@@ -51,9 +51,9 @@ def print_welcome_message(args):
     else:
         print(f"Today is {MensaURL().weekday} and here is today's menu:")
 
-    # Get the weather at Fluntern (8044)
+    # Get the weather at Zürich (8001)
     hour = 12 if args.time == "mittag" else 18
-    temperature, emoji = get_weather(8044, hour)
+    temperature, emoji = get_weather(8001, hour)
     print(f"The weather at {hour}:00 is {emoji} and {int(temperature)} °C.\n")
 
 

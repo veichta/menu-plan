@@ -45,16 +45,17 @@ def print_welcome_message(args):
     # print(f"{greeting_msg} Today is {MensaURL().weekday} and here is today's menu:\n")
 
     if MensaURL().weekday == "dienstag":
-        print(f"Today is vinstag (so don't foget your stamp cards) and here is today's menu:")
+        day = "vinstag (so don't foget your stamp cards)"
     elif MensaURL().weekday == "mittwoch":
-        print(f"Today is mojitwoch and here is today's menu:")
+        day = "mojitwoch"
     else:
-        print(f"Today is {MensaURL().weekday} and here is today's menu:")
-
+        day = MensaURL().weekday
+ 
     # Get the weather at Zürich (8001)
     hour = 12 if args.time == "mittag" else 18
     temperature, emoji = get_weather(8001, hour)
-    print(f"The weather at {hour}:00 is {emoji} and {int(temperature)} °C.\n")
+
+    print(f"Today is {day} ({emoji}, {int(temperature)} °C) and here is today's menu:\n")
 
 
 if __name__ == "__main__":

@@ -2,8 +2,6 @@ import argparse
 import json
 import logging
 
-import numpy as np
-
 from src.constants import MensaNames, MensaURL
 from src.scraping import get_menus
 from src.utils import print_menu
@@ -26,7 +24,6 @@ def main(args):
         MensaNames.uzh_abend.value,
         MensaNames.poly_abend.value,
     ]
-
     idx = 0
     for mensa_name in mensa_oder:
         if "abend" in mensa_name and args.time == "mittag":
@@ -50,7 +47,7 @@ def print_welcome_message(args):
         day = "mojitwoch"
     else:
         day = MensaURL().weekday
- 
+
     # Get the weather at Zürich (8001)
     hour = 12 if args.time == "mittag" else 18
     temperature, emoji = get_weather(8001, hour)

@@ -1,3 +1,5 @@
+import json
+import logging
 import re
 
 import pandas as pd
@@ -43,14 +45,23 @@ def print_menu(mensa: str, menu: pd.DataFrame):
     Args:
         menu (pd.DataFrame): The menu to print.
     """
+    emoji_mapping = json.load(open("data/mensa_emojis.json", "r"))
+
     mensa = clean_menu(mensa).upper()
     print(f"{mensa}\n{'-' * 20}")
 
     for _, row in menu.iterrows():
         name = clean_menu(row["name"]).title()
+
+        emoji_name = name.lower().replace(" abend", "")
+        logging.info(f"Emoji name: {emoji_name}")
+        emoji = emoji_mapping.get(emoji_name, "💩")
+
         dish = clean_menu(row["dish"])
 
         price = row["price"]
 
         title = f"{name} (CHF {price:.2f})"
-        print(f"{title}\n{dish}\n")
+        print(f"{emoji} {title}: {dish}")
+
+    print()

@@ -109,8 +109,8 @@ def get_eth_menu(mensa: MensaNames):
     for menu in menus["line-array"]:
         name = menu["name"]
         if meal := menu.get("meal"):
-            meal_name = meal["name"]
-            desc = meal["description"]
+            meal_name = meal["name"].title()
+            desc = meal["description"].replace(" |", ",")
             price = next(
                 p["price"]
                 for p in meal["meal-price-array"]

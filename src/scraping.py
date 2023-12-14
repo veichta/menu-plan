@@ -97,10 +97,11 @@ def get_eth_menu(mensa: MensaNames):
     menus = next(m for m in all_menus if m["day-of-week-code"] == day_int + 1)
     menus = menus["opening-hour-array"][0]["meal-time-array"]
 
+    logging.info(f"Found menus: {[me['name'] for me in menus]}")
     if mensa == MensaNames.poly_abend:
         menus = next(me for me in menus if me["name"] == "Abendessen")
     else:
-        menus = next(me for me in menus if me["name"] == "Mittagessen")
+        menus = next(me for me in menus if me["name"].startswith("Mittag"))
 
     names = []
     prices = []

@@ -15,7 +15,7 @@ def main(args):
 
     print_welcome_message(args)
     if question is not None:
-        print("❓ " + question[0])
+        print("🧠 " + question[0])
     print() 
 
     menu_per_mensa = menu_df.groupby("mensa")
@@ -40,7 +40,7 @@ def main(args):
         idx += 1
 
     if question is not None:
-        print("❗ " + question[1])
+        print("💡 " + question[1])
 
 def print_welcome_message(args):
     # with open("data/messages.json", "r") as f:

@@ -6,12 +6,17 @@ from src.constants import MensaNames, MensaURL
 from src.scraping import get_menus
 from src.utils import print_menu
 from src.weather import get_weather
+from src.question import get_random_question
 
 
 def main(args):
     menu_df = get_menus()
+    question = get_random_question(0 if args.time == "mittag" else 1)
 
     print_welcome_message(args)
+    if question is not None:
+        print("❓ " + question[0])
+    print() 
 
     menu_per_mensa = menu_df.groupby("mensa")
 
@@ -34,6 +39,8 @@ def main(args):
         print_menu(f"{idx}: {mensa_name}", menu_per_mensa.get_group(mensa_name))
         idx += 1
 
+    if question is not None:
+        print("❗ " + question[1])
 
 def print_welcome_message(args):
     # with open("data/messages.json", "r") as f:
@@ -52,7 +59,7 @@ def print_welcome_message(args):
     hour = 12 if args.time == "mittag" else 18
     temperature, emoji = get_weather(8001, hour)
 
-    print(f"Today is {day} ({emoji}, {int(temperature)} °C) and here is today's menu:\n")
+    print(f"Today is {day} ({emoji}, {int(temperature)} °C) and here is today's menu:")
 
 
 if __name__ == "__main__":

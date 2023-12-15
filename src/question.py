@@ -1,4 +1,3 @@
-from openai import OpenAI
 from datetime import datetime, timedelta
 import json
 import requests
@@ -15,6 +14,8 @@ def get_random_question(top_n=25):
 
     if "api_key" not in cfg or len(cfg["api_key"]) == 0:
         return None
+
+    from openai import OpenAI
 
     client = OpenAI(api_key=cfg["api_key"])
 

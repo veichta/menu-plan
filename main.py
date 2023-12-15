@@ -11,7 +11,7 @@ from src.question import get_random_question
 
 def main(args):
     menu_df = get_menus()
-    question = get_random_question(0 if args.time == "mittag" else 1)
+    question = get_random_question()
 
     print_welcome_message(args)
     if question is not None:

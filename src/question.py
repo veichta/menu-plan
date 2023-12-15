@@ -49,8 +49,8 @@ def get_random_question(top_n=25):
             if is_article:
                 topics.append(title)
 
-    # Pick from the n-th most viewed article a title as our topic
-    topic = random.choice(topics)
+    # Pick from the n-th most viewed articles a title as our topic
+    topic = random.choice(topics[:top_n])
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -71,6 +71,8 @@ def get_random_question(top_n=25):
     )
 
     choice = response.choices[0].message.content
-    response = json.loads(choice)
-
-    return (response["question"], response["answer"])
+    try:
+        response = json.loads(choice)
+        return (response["question"], response["answer"])
+    except:
+        return None

@@ -5,7 +5,7 @@ import random
 import os
 
 
-def get_random_question(top_n=25):
+def get_random_question(top_n=100, retain=25):
     if not os.path.exists("data/openai.json"):
         return None
 
@@ -49,15 +49,26 @@ def get_random_question(top_n=25):
             if is_article:
                 topics.append(title)
 
+    # Remove topics that have been used before
+    with open("data/topic_history.txt", "r") as f:
+        history = f.read().splitlines()
+    topics = [t for t in topics if t not in history]
+
     # Pick from the n-th most viewed articles a title as our topic
     topic = random.choice(topics[:top_n])
+
+    # Add the topic to the history and retain the last entries
+    history.append(topic)
+    history = history[-retain:] if len(history) > retain else history
+    with open("data/topic_history.txt", "w") as f:
+        f.write("\n".join(history))
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {
                 "role": "system",
-                "content": "You are given a topic and should pick one and write a challenging question." +
+                "content": "You are given a topic and should write a challenging question." +
                 "Keep it very short and concise. Provide it as JSON with keys question and answer."
             },
             {
